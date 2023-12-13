@@ -1,27 +1,34 @@
 using System;
-using UnityEngine;
-
-public class Coin : MonoBehaviour
+public class Coin
 {
-    public static Coin instance = new Coin();
-
+    public const int MAX_COINS = 3;
     public int countCoin { get; private set; }
-    private const int _maxCoins = 99;
 
-    public delegate void OnUpdatingCoinAccount(int countCoin);
-    public static event OnUpdatingCoinAccount OnUpdatingCoinAccountEvent;
+    public static Coin instance = new Coin();
+    public static event Action<int> OnUpdatingCoinAccount;
 
-    public void Awake()
+    private void Awake()
     {
         instance = this;
     }
 
     public void AddCoin(int addedCoin) 
     {
-        if (countCoin + addedCoin > _maxCoins)
-            throw new InvalidOperationException();
+        if (countCoin + addedCoin > MAX_COINS)
+            countCoin = MAX_COINS;
+        else
+            countCoin += addedCoin;
 
-        countCoin += addedCoin;
-        OnUpdatingCoinAccountEvent?.Invoke(countCoin);
+        OnUpdatingCoinAccount?.Invoke(countCoin);
+    }
+
+    public void SpendCoin(int spentCoin) 
+    {
+        if (countCoin <= 0)
+            countCoin = 0;
+        else
+            countCoin -= spentCoin;
+
+        OnUpdatingCoinAccount?.Invoke(countCoin);
     }
 }
